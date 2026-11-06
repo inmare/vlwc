@@ -1,1 +1,7 @@
-console.log('Hello world');
+import crawling from './crawling';
+
+try {
+  await crawling();
+} catch (error) {
+  console.error(error);
+}
