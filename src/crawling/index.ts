@@ -9,7 +9,17 @@ import {
 import type { Page, PageData } from './types';
 import * as cheerio from 'cheerio';
 
-export default async function crawling() {
+interface CrawlingOptions {
+  amount: number | undefined;
+  random: boolean;
+  debug: boolean;
+}
+
+export default async function crawling({
+  amount,
+  random,
+  debug,
+}: CrawlingOptions) {
   console.log('Crawling started');
   const originUrl = 'https://vocaro.wikidot.com';
   const allsongsUrl = new URL('allsongs', originUrl);
@@ -19,16 +29,30 @@ export default async function crawling() {
 
   const pages: Page[] = [];
   for (const path of paths) {
+    if (debug) console.log(`Current Page: ${path}`);
     const subPageUrl = new URL(path, originUrl);
-    console.log(`Current Page: ${path}`);
+
     const html = await fetchHtml(subPageUrl);
     pages.push(...parseSongLinks(html));
   }
 
   console.log(`Get ${pages.length} of songs from sub pages`);
 
+  let finalPages: Page[] = [...pages];
+
+  if (random) {
+    for (let i = finalPages.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [finalPages[i], finalPages[j]] = [finalPages[j]!, finalPages[i]!];
+    }
+  }
+
+  if (amount !== undefined) {
+    finalPages = finalPages.slice(0, amount);
+  }
+
   const pageDatas: PageData[] = [];
-  for (const page of pages) {
+  for (const page of finalPages) {
     console.log(`Trying to get/parse page ${page.url}`);
     const songPageUrl = new URL(page.url, originUrl);
     const html = await fetchHtml(songPageUrl);
@@ -39,5 +63,9 @@ export default async function crawling() {
       lyricsTable: parseLyricsTable($),
     };
     pageDatas.push(pageData);
+  }
+
+  if (debug) {
+    console.log(pageDatas);
   }
 }
