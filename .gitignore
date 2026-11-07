@@ -1,14 +1,16 @@
+# installed dependencies
 node_modules/
-dist/
-coverage/
 
+# env files
 .env
 .env.*
 !.env.example
 
+# log files
 *.log
 *.tsbuildinfo
 
+# database files
 *.sqlite
 *.sqlite-journal
 *.sqlite-wal
