@@ -28,5 +28,9 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "got": "^16.2.0"
   }
 }
