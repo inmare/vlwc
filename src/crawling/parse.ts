@@ -40,3 +40,46 @@ export function parseSongLinks(html: string): Page[] {
     });
   return links;
 }
+
+/**
+ * get page title from song page
+ * @param $ cheerio api of song page html
+ * @returns page title in string
+ */
+export function parsePageTitle($: cheerio.CheerioAPI): string {
+  const pageTitle = $('#page-title').text().trim();
+  if (!pageTitle) throw new Error('No page title founded in song page');
+
+  return pageTitle;
+}
+
+/**
+ * get info table from song page
+ * @param $ cheerio api of song page html
+ * @returns info table html in string
+ */
+export function parseInfoTable($: cheerio.CheerioAPI): string {
+  const infoTable = $('#page-content table.info-table').html();
+  if (!infoTable) throw new Error('No info table founded in song page');
+
+  // TODO: add more parsing logic when database schema is set
+  return infoTable.trim();
+}
+
+/**
+ * get lyrics table from song page
+ * @param $ cheerio api of song page html
+ * @returns lyrics table html in string
+ */
+export function parseLyricsTable($: cheerio.CheerioAPI): string {
+  const tableWrap = $('#page-content .table-wrap');
+  // If page have multiple lyrics table, it has table wrapper
+  const hasTableWrap = tableWrap.length > 0;
+  const lyricsTable = hasTableWrap
+    ? tableWrap.html()
+    : $('#page-content table.wiki-content-table').html();
+  if (!lyricsTable) throw new Error('No lyrics table founded in song page');
+
+  // TODO: add more parsing logic when database schema is set
+  return lyricsTable.trim();
+}
