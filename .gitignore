@@ -8,3 +8,8 @@ coverage/
 
 *.log
 *.tsbuildinfo
+
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
