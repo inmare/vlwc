@@ -67,7 +67,7 @@ export function getInfoTable($: cheerio.CheerioAPI): string {
  * @param $ cheerio api of song page html
  * @returns lyrics table html in string
  */
-export function parseLyricsTable($: cheerio.CheerioAPI): string {
+export function getLyricsTable($: cheerio.CheerioAPI): string {
   const tableWrap = $('#page-content .table-wrap');
   // If page have multiple lyrics table, it has table wrapper
   const hasTableWrap = tableWrap.length > 0;

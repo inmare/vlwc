@@ -75,7 +75,7 @@ try {
     const pageData: PageData = {
       pageTitle: parser.getPageTitle($),
       infoTable: parser.getInfoTable($),
-      lyricsTable: parser.parseLyricsTable($),
+      lyricsTable: parser.getLyricsTable($),
     };
     pageDatas.push(pageData);
     insertPages(pagePath, pageData);
