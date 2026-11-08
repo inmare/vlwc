@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
+import { insertPages } from './db';
 import type { PageData } from './types';
 
 const { values } = parseArgs({
@@ -77,6 +78,7 @@ try {
       lyricsTable: parser.parseLyricsTable($),
     };
     pageDatas.push(pageData);
+    insertPages(pagePath, pageData);
   }
 
   if (debug) {

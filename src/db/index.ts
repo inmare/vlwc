@@ -1,1 +1,1 @@
-
+export { insertPages } from './pages';
