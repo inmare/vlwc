@@ -1,8 +1,2 @@
-export { fetchHtml } from './fetch';
-export {
-  parseInfoTable,
-  parseLyricsTable,
-  parsePageTitle,
-  parseSongLinks,
-  parseSongListPaths,
-} from './parse';
+export * as fetcher from './fetcher';
+export * as parser from './parser';

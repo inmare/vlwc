@@ -6,7 +6,7 @@ import type { Page } from './types';
  * @param html Html of `/allsongs`
  * @returns Sub Page links which contains song link
  */
-export function parseSongListPaths(html: string): string[] {
+export function getSongListPaths(html: string): string[] {
   const $ = cheerio.load(html);
   const pages = $('.allsongs-index-group li > a')
     .toArray()
@@ -25,7 +25,7 @@ export function parseSongListPaths(html: string): string[] {
  * @param html Html of sub page of `/allsongs`
  * @returns All songs links
  */
-export function parseSongLinks(html: string): Page[] {
+export function getSongLinks(html: string): Page[] {
   const $ = cheerio.load(html);
   const links = $('ul.allsongs-list > li > a')
     .toArray()
@@ -46,7 +46,7 @@ export function parseSongLinks(html: string): Page[] {
  * @param $ cheerio api of song page html
  * @returns page title in string
  */
-export function parsePageTitle($: cheerio.CheerioAPI): string {
+export function getPageTitle($: cheerio.CheerioAPI): string {
   const pageTitle = $('#page-title').text().trim();
   if (!pageTitle) throw new Error('No page title founded in song page');
 
@@ -58,7 +58,7 @@ export function parsePageTitle($: cheerio.CheerioAPI): string {
  * @param $ cheerio api of song page html
  * @returns info table html in string
  */
-export function parseInfoTable($: cheerio.CheerioAPI): string {
+export function getInfoTable($: cheerio.CheerioAPI): string {
   const infoTable = $('#page-content table.info-table').html();
   if (!infoTable) throw new Error('No info table founded in song page');
 

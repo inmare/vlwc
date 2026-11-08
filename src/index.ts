@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
-import * as crawler from './crawler';
+import { fetcher, parser } from './crawler';
 
 const { values } = parseArgs({
   options: {
@@ -47,8 +47,8 @@ try {
   console.log('Crawling started');
 
   const allsongsUrl = new URL(ALLSONGS_PATH, WIKI_URL);
-  const allsongsHtml = await crawler.fetchHtml(allsongsUrl);
-  const paths = crawler.parseSongListPaths(allsongsHtml);
+  const allsongsHtml = await fetcher.fetchHtml(allsongsUrl);
+  const paths = parser.getSongListPaths(allsongsHtml);
   console.log(`Get ${paths.length} of sub pages in /allsongs`);
 
   const pages: CrawlerPage[] = [];
@@ -56,8 +56,8 @@ try {
     if (debug) console.log(`Current Page: ${path}`);
     const subPageUrl = new URL(path, WIKI_URL);
 
-    const html = await crawler.fetchHtml(subPageUrl);
-    pages.push(...crawler.parseSongLinks(html));
+    const html = await fetcher.fetchHtml(subPageUrl);
+    pages.push(...parser.getSongLinks(html));
   }
 
   console.log(`Get ${pages.length} of songs from sub pages`);
@@ -79,12 +79,12 @@ try {
   for (const page of finalPages) {
     console.log(`Trying to get/parse page ${page.url}`);
     const songPageUrl = new URL(page.url, WIKI_URL);
-    const html = await crawler.fetchHtml(songPageUrl);
+    const html = await fetcher.fetchHtml(songPageUrl);
     const $ = cheerio.load(html);
     const pageData: CrawlerPageData = {
-      pageTitle: crawler.parsePageTitle($),
-      infoTable: crawler.parseInfoTable($),
-      lyricsTable: crawler.parseLyricsTable($),
+      pageTitle: parser.getPageTitle($),
+      infoTable: parser.getInfoTable($),
+      lyricsTable: parser.parseLyricsTable($),
     };
     pageDatas.push(pageData);
   }
