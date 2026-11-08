@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
-import * as crawler from './crawling';
+import * as crawler from './crawler';
 
 const { values } = parseArgs({
   options: {
