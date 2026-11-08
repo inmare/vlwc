@@ -1,5 +1,4 @@
 import * as cheerio from 'cheerio';
-import type { Page } from './types';
 
 /**
  * Get Sub Page links from `/allsongs`
@@ -25,7 +24,7 @@ export function getSongListPaths(html: string): string[] {
  * @param html Html of sub page of `/allsongs`
  * @returns All songs links
  */
-export function getSongLinks(html: string): Page[] {
+export function getSongLinks(html: string): string[] {
   const $ = cheerio.load(html);
   const links = $('ul.allsongs-list > li > a')
     .toArray()
@@ -33,10 +32,7 @@ export function getSongLinks(html: string): Page[] {
       const url = element.attribs.href;
       if (!url)
         throw new Error('No link is existing in selected /allsongs subpage');
-      return {
-        title: $(element).text().trim(),
-        url,
-      };
+      return url;
     });
   return links;
 }
