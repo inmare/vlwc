@@ -32,11 +32,6 @@ if (isAmountPositiveInt) {
 const random = values.random;
 const debug = values.debug;
 
-interface CrawlerPage {
-  title: string;
-  url: string;
-}
-
 interface CrawlerPageData {
   pageTitle: string;
   infoTable: string;
@@ -51,7 +46,7 @@ try {
   const paths = parser.getSongListPaths(allsongsHtml);
   console.log(`Get ${paths.length} of sub pages in /allsongs`);
 
-  const pages: CrawlerPage[] = [];
+  const pages: string[] = [];
   for (const path of paths) {
     if (debug) console.log(`Current Page: ${path}`);
     const subPageUrl = new URL(path, WIKI_URL);
@@ -62,7 +57,7 @@ try {
 
   console.log(`Get ${pages.length} of songs from sub pages`);
 
-  let finalPages: CrawlerPage[] = [...pages];
+  let finalPages: string[] = [...pages];
 
   if (random) {
     for (let i = finalPages.length - 1; i > 0; i--) {
@@ -76,9 +71,9 @@ try {
   }
 
   const pageDatas: CrawlerPageData[] = [];
-  for (const page of finalPages) {
-    console.log(`Trying to get/parse page ${page.url}`);
-    const songPageUrl = new URL(page.url, WIKI_URL);
+  for (const pagePath of finalPages) {
+    console.log(`Trying to get/parse page ${pagePath}`);
+    const songPageUrl = new URL(pagePath, WIKI_URL);
     const html = await fetcher.fetchHtml(songPageUrl);
     const $ = cheerio.load(html);
     const pageData: CrawlerPageData = {
