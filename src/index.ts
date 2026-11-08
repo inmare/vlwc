@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
+import type { PageData } from './types';
 
 const { values } = parseArgs({
   options: {
@@ -31,12 +32,6 @@ if (isAmountPositiveInt) {
 }
 const random = values.random;
 const debug = values.debug;
-
-interface CrawlerPageData {
-  pageTitle: string;
-  infoTable: string;
-  lyricsTable: string;
-}
 
 try {
   console.log('Crawling started');
@@ -70,13 +65,13 @@ try {
     finalPages = finalPages.slice(0, amount);
   }
 
-  const pageDatas: CrawlerPageData[] = [];
+  const pageDatas: PageData[] = [];
   for (const pagePath of finalPages) {
     console.log(`Trying to get/parse page ${pagePath}`);
     const songPageUrl = new URL(pagePath, WIKI_URL);
     const html = await fetcher.fetchHtml(songPageUrl);
     const $ = cheerio.load(html);
-    const pageData: CrawlerPageData = {
+    const pageData: PageData = {
       pageTitle: parser.getPageTitle($),
       infoTable: parser.getInfoTable($),
       lyricsTable: parser.parseLyricsTable($),
