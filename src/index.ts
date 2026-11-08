@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { parseArgs } from 'node:util';
+import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import * as crawler from './crawling';
 
 const { values } = parseArgs({
@@ -44,8 +45,8 @@ interface CrawlerPageData {
 
 try {
   console.log('Crawling started');
-  const originUrl = 'https://vocaro-wikidot.com';
-  const allsongsUrl = new URL('allsongs', originUrl);
+
+  const allsongsUrl = new URL(ALLSONGS_PATH, WIKI_URL);
   const allsongsHtml = await crawler.fetchHtml(allsongsUrl);
   const paths = crawler.parseSongListPaths(allsongsHtml);
   console.log(`Get ${paths.length} of sub pages in /allsongs`);
@@ -53,7 +54,7 @@ try {
   const pages: CrawlerPage[] = [];
   for (const path of paths) {
     if (debug) console.log(`Current Page: ${path}`);
-    const subPageUrl = new URL(path, originUrl);
+    const subPageUrl = new URL(path, WIKI_URL);
 
     const html = await crawler.fetchHtml(subPageUrl);
     pages.push(...crawler.parseSongLinks(html));
@@ -77,7 +78,7 @@ try {
   const pageDatas: CrawlerPageData[] = [];
   for (const page of finalPages) {
     console.log(`Trying to get/parse page ${page.url}`);
-    const songPageUrl = new URL(page.url, originUrl);
+    const songPageUrl = new URL(page.url, WIKI_URL);
     const html = await crawler.fetchHtml(songPageUrl);
     const $ = cheerio.load(html);
     const pageData: CrawlerPageData = {
