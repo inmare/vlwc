@@ -6,5 +6,6 @@ const filename = process.env.DB_FILE_NAME;
 if (!filename) throw new Error('DB_FILE_NAME is required');
 
 const sqlite = new Database(filename);
+sqlite.pragma('foreign_keys = ON');
 
 export const db = drizzle(sqlite);

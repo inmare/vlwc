@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const pages = sqliteTable('pages', {
@@ -8,5 +9,54 @@ export const pages = sqliteTable('pages', {
   lyricsTable: text().notNull(),
 });
 
+export const pagesRelations = relations(pages, ({ one }) => ({
+  songs: one(songs),
+}));
+
 export type Page = typeof pages.$inferSelect;
 export type NewPage = typeof pages.$inferInsert;
+
+// Each page has single song
+export const songs = sqliteTable('songs', {
+  id: int().primaryKey({ autoIncrement: true }),
+  pageId: int()
+    .notNull()
+    .unique()
+    .references(() => pages.id, { onDelete: 'cascade' }),
+  title: text().notNull(),
+  originalTitle: text().notNull(),
+});
+
+export const songsRelations = relations(songs, ({ one, many }) => ({
+  page: one(pages, {
+    fields: [songs.pageId],
+    references: [pages.id],
+  }),
+  versions: many(songVersions),
+}));
+
+export type Song = typeof songs.$inferSelect;
+export type NewSong = typeof songs.$inferInsert;
+
+// Each song could have multiple versions
+// Example: https://vocaro.wikidot.com/telecaster-b-boy
+export const songVersions = sqliteTable('song_versions', {
+  id: int().primaryKey({ autoIncrement: true }),
+  songId: int()
+    .notNull()
+    .references(() => songs.id, { onDelete: 'cascade' }),
+  versionName: text(),
+  songLink: text({ mode: 'json' }),
+  songInfo: text({ mode: 'json' }),
+  lyrics: text({ mode: 'json' }),
+});
+
+export const songVersionsRelations = relations(songVersions, ({ one }) => ({
+  song: one(songs, {
+    fields: [songVersions.songId],
+    references: [songs.id],
+  }),
+}));
+
+export type SongVersion = typeof songVersions.$inferSelect;
+export type NewSongVersion = typeof songVersions.$inferInsert;

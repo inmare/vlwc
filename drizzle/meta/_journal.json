@@ -8,6 +8,13 @@
       "when": 1794064072467,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794144325574,
+      "tag": "0001_songs_and_song_versions",
+      "breakpoints": true
     }
   ]
 }
