@@ -5,6 +5,42 @@ import { fetcher, parser } from './crawler';
 import { insertPages } from './db';
 import type { PageData } from './types';
 
+interface Options {
+  amount: number | undefined;
+  random: boolean | undefined;
+  debug: boolean | undefined;
+}
+
+function parseOptions(): Options {
+  const { values } = parseArgs({
+    options: {
+      amount: {
+        type: 'string',
+        short: 'a',
+      },
+      random: {
+        type: 'boolean',
+        short: 'r',
+        default: true,
+      },
+      debug: {
+        type: 'boolean',
+        short: 'd',
+        default: false,
+      },
+    },
+  });
+
+  const amount =
+    values.amount === undefined ? undefined : Number(values.amount);
+  const isAmountInvalid =
+    amount !== undefined && (!Number.isSafeInteger(amount) || amount <= 0);
+  if (isAmountInvalid) throw new Error('Put positive integer in amount');
+  const random = values.random;
+  const debug = values.debug;
+  return { amount, random, debug };
+}
+
 async function getSongPageLinks(
   amount?: number,
   random?: boolean,
@@ -41,32 +77,7 @@ async function getSongPageLinks(
 }
 
 async function main() {
-  const { values } = parseArgs({
-    options: {
-      amount: {
-        type: 'string',
-        short: 'a',
-      },
-      random: {
-        type: 'boolean',
-        short: 'r',
-        default: true,
-      },
-      debug: {
-        type: 'boolean',
-        short: 'd',
-        default: false,
-      },
-    },
-  });
-
-  const amount =
-    values.amount === undefined ? undefined : Number(values.amount);
-  const isAmountInvalid =
-    amount !== undefined && (!Number.isSafeInteger(amount) || amount <= 0);
-  if (isAmountInvalid) throw new Error('Put positive integer in amount');
-  const random = values.random;
-  const debug = values.debug;
+  const { amount, random, debug } = parseOptions();
 
   console.log('Crawling started');
 
