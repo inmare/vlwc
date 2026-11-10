@@ -55,7 +55,9 @@ export function getPageTitle($: cheerio.CheerioAPI): string {
  * @returns info table html in string
  */
 export function getInfoTable($: cheerio.CheerioAPI): string {
-  const infoTable = $('#page-content table.info-table').html();
+  const infoTable = $('#page-content table.info-table')
+    .first()
+    .prop('outerHTML');
   if (!infoTable) throw new Error('No info table founded in song page');
 
   // TODO: add more parsing logic when database schema is set
@@ -72,8 +74,8 @@ export function getLyricsTable($: cheerio.CheerioAPI): string {
   // If page have multiple lyrics table, it has table wrapper
   const hasTableWrap = tableWrap.length > 0;
   const lyricsTable = hasTableWrap
-    ? tableWrap.html()
-    : $('#page-content table.wiki-content-table').html();
+    ? tableWrap.prop('outerHTML')
+    : $('#page-content table.wiki-content-table').first().prop('outerHTML');
   if (!lyricsTable) throw new Error('No lyrics table founded in song page');
 
   // TODO: add more parsing logic when database schema is set
