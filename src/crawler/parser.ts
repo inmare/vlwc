@@ -43,7 +43,7 @@ export function getSongLinks(html: string): string[] {
  * @returns page title in string
  */
 export function getPageTitle($: cheerio.CheerioAPI): string {
-  const pageTitle = $('#page-title').text().trim();
+  const pageTitle = $('.page-title').first().text().trim();
   if (!pageTitle) throw new Error('No page title founded in song page');
 
   return pageTitle;
