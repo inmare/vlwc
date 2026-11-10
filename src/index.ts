@@ -5,36 +5,37 @@ import { fetcher, parser } from './crawler';
 import { insertPages } from './db';
 import type { PageData } from './types';
 
-const { values } = parseArgs({
-  options: {
-    amount: {
-      type: 'string',
-      short: 'a',
+async function main() {
+  const { values } = parseArgs({
+    options: {
+      amount: {
+        type: 'string',
+        short: 'a',
+      },
+      random: {
+        type: 'boolean',
+        short: 'r',
+        default: true,
+      },
+      debug: {
+        type: 'boolean',
+        short: 'd',
+        default: false,
+      },
     },
-    random: {
-      type: 'boolean',
-      short: 'r',
-      default: true,
-    },
-    debug: {
-      type: 'boolean',
-      short: 'd',
-      default: false,
-    },
-  },
-});
+  });
 
-const amount = values.amount === undefined ? undefined : Number(values.amount);
-const isAmountPositiveInt =
-  amount !== undefined && (!Number.isSafeInteger(amount) || amount <= 0);
-if (isAmountPositiveInt) {
-  console.error('Put positive integer in amount');
-  process.exit(1);
-}
-const random = values.random;
-const debug = values.debug;
+  const amount =
+    values.amount === undefined ? undefined : Number(values.amount);
+  const isAmountPositiveInt =
+    amount !== undefined && (!Number.isSafeInteger(amount) || amount <= 0);
+  if (isAmountPositiveInt) {
+    console.error('Put positive integer in amount');
+    process.exit(1);
+  }
+  const random = values.random;
+  const debug = values.debug;
 
-try {
   console.log('Crawling started');
 
   const allsongsUrl = new URL(ALLSONGS_PATH, WIKI_URL);
@@ -84,6 +85,9 @@ try {
   if (debug) {
     console.log(pageDatas);
   }
-} catch (error) {
-  console.error(error);
 }
+
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});
