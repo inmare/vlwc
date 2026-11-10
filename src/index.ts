@@ -27,12 +27,9 @@ async function main() {
 
   const amount =
     values.amount === undefined ? undefined : Number(values.amount);
-  const isAmountPositiveInt =
-    amount !== undefined && (!Number.isSafeInteger(amount) || amount <= 0);
-  if (isAmountPositiveInt) {
-    console.error('Put positive integer in amount');
-    process.exit(1);
-  }
+  const isAmountInvalid =
+    amount === undefined || !Number.isSafeInteger(amount) || amount <= 0;
+  if (isAmountInvalid) throw new Error('Put positive integer in amount');
   const random = values.random;
   const debug = values.debug;
 
