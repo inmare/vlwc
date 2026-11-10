@@ -9,6 +9,7 @@ interface Options {
   amount: number | undefined;
   random: boolean | undefined;
   debug: boolean | undefined;
+  links: string[] | undefined;
 }
 
 function parseOptions(): Options {
@@ -28,6 +29,10 @@ function parseOptions(): Options {
         short: 'd',
         default: false,
       },
+      links: {
+        type: 'string',
+        short: 'l',
+      },
     },
   });
 
@@ -38,7 +43,17 @@ function parseOptions(): Options {
   if (isAmountInvalid) throw new Error('Put positive integer in amount');
   const random = values.random;
   const debug = values.debug;
-  return { amount, random, debug };
+  const links = values.links?.split(',').map((link) => link.trim());
+  if (links !== undefined) {
+    for (const link of links) {
+      if (!link.startsWith('/') || link.startsWith('//')) {
+        throw new Error(
+          `Invalid song path: "${link}". Expected a path like "/song-name".`,
+        );
+      }
+    }
+  }
+  return { amount, random, debug, links };
 }
 
 async function getSongPageLinks(
@@ -77,11 +92,12 @@ async function getSongPageLinks(
 }
 
 async function main() {
-  const { amount, random, debug } = parseOptions();
+  const { amount, random, debug, links } = parseOptions();
 
   console.log('Crawling started');
 
-  const songPages = await getSongPageLinks(amount, random);
+  const songPages =
+    links !== undefined ? links : await getSongPageLinks(amount, random);
 
   const pageDatas: PageData[] = [];
   for (const pagePath of songPages) {
