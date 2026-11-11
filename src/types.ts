@@ -3,3 +3,8 @@ export interface PageData {
   infoTable: string;
   lyricsTable: string;
 }
+
+export interface SongVersionInfo {
+  name: string | null;
+  index: number;
+}

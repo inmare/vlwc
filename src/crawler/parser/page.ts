@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import type { SongVersionInfo } from '../../types';
 
 /**
  * Get Sub Page links from `/allsongs`
@@ -80,4 +81,49 @@ export function getLyricsTable($: cheerio.CheerioAPI): string {
 
   // TODO: add more parsing logic when database schema is set
   return lyricsTable.trim();
+}
+
+/**
+ * Get version info from a song page's lyrics HTML.
+ * @param infoTableHtml Info table HTML from the song page.
+ * @param lyricsTableHtml Lyrcis table HTML from the song page.
+ * @returns Version names, or null if no table wrapper is present.
+ */
+export function getVersions(
+  infoTableHtml: string,
+  lyricsTableHtml: string,
+): SongVersionInfo[] {
+  // TODO: Check for edge cases.
+  const $infoTable = cheerio.load(infoTableHtml);
+  const $lyricsTable = cheerio.load(lyricsTableHtml);
+
+  // Multiple versions could have multiple lyrics and it's version name
+  const tableWrap = $lyricsTable('.table-wrap');
+  const hasTableWrap = tableWrap.length > 0;
+  if (hasTableWrap) {
+    const versions = $lyricsTable('h2')
+      .map((index, element) => {
+        return { name: $lyricsTable(element).text().trim(), index: index };
+      })
+      .get();
+    if (versions.length === 0) throw new Error('versions array is empty.');
+    return versions;
+  }
+
+  // Even if lyrics table don't have multiple lyrics, it could have multiple versions in info table.
+  const versionCount = $infoTable('tr')
+    .get()
+    .slice(1)
+    .map((element) => {
+      const cells = $infoTable(element).children();
+      return Math.max(cells.filter('th').length, cells.filter('td').length);
+    })
+    .reduce((prev, curr) => {
+      return Math.max(prev, curr);
+    });
+
+  return Array.from({ length: versionCount }, (_, index) => ({
+    name: null,
+    index,
+  }));
 }
