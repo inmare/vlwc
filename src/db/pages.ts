@@ -20,6 +20,14 @@ export function insertPages(
       .values({
         ...parsedPage,
       })
+      .onConflictDoUpdate({
+        target: pages.url,
+        set: {
+          pageTitle: parsedPage.pageTitle,
+          infoTable: parsedPage.infoTable,
+          lyricsTable: parsedPage.lyricsTable,
+        },
+      })
       .returning()
       .get();
 
@@ -30,11 +38,19 @@ export function insertPages(
         ...parsedSong,
         pageId: page.id,
       })
+      .onConflictDoUpdate({
+        target: songs.pageId,
+        set: {
+          title: parsedSong.title,
+          originalTitle: parsedSong.originalTitle,
+        },
+      })
       .returning()
       .get();
 
     // TODO: make multiple lyrics version if it has
     // TOOD: parse lyrics and fill content
+    // TODO: sync lyrics when update database
     const lyricsInstance = tx
       .insert(lyrics)
       .values({
@@ -43,6 +59,7 @@ export function insertPages(
       .returning()
       .get();
 
+    // TODO: sync song versions when update database
     parsedSongVersions.forEach((songVersion) => {
       tx.insert(songVersions)
         .values({
