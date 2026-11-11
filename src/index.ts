@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { appendFile, mkdir } from 'node:fs/promises';
+import { setTimeout } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
@@ -170,6 +171,8 @@ async function main() {
       );
 
       console.error(`Error: ${songPageUrl.href}`, error);
+    } finally {
+      await setTimeout(250);
     }
   }
 }
