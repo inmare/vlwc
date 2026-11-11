@@ -114,7 +114,7 @@ async function main() {
 
   const pageDatas: PageData[] = [];
   for (const pagePath of songPages) {
-    console.log(`Trying to get/parse page ${pagePath}`);
+    console.log(`Current page: ${pagePath}`);
     const songPageUrl = new URL(pagePath, WIKI_URL);
     try {
       const html = await fetcher.fetchHtml(songPageUrl);
@@ -131,7 +131,6 @@ async function main() {
       // insertPages(pagePath, pageData);
 
       const originalTitle = parser.infoTable.getOriginalTitle(infoTable);
-
       if (debug) {
         console.log(pageTitle);
         console.log(originalTitle);
@@ -139,11 +138,14 @@ async function main() {
 
       const versions = parser.page.getVersions(infoTable, lyricsTable);
       versions.forEach((version, index) => {
-        console.log(`Version: ${version.name}, Index: ${version.index}`);
+        if (debug)
+          console.log(`Version: ${version.name}, Index: ${version.index}`);
         const links = parser.infoTable.getLinks(infoTable, index);
         const credits = parser.infoTable.getCredits(infoTable, index);
-        console.log(links);
-        console.log(credits);
+        if (debug) {
+          console.log(links);
+          console.log(credits);
+        }
       });
     } catch (error: unknown) {
       const log = {
