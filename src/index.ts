@@ -35,7 +35,7 @@ function parseOptions(): Options {
       random: {
         type: 'boolean',
         short: 'r',
-        default: true,
+        default: false,
       },
       debug: {
         type: 'boolean',
