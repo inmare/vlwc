@@ -40,15 +40,20 @@ export type NewSong = typeof songs.$inferInsert;
 
 // Each song could have multiple versions
 // Example: https://vocaro.wikidot.com/telecaster-b-boy
+// Each song could have multiple versions, but could have same lyrics
+// Example: https://vocaro.wikidot.com/dance-robot-dance
 export const songVersions = sqliteTable('song_versions', {
   id: int().primaryKey({ autoIncrement: true }),
   songId: int()
     .notNull()
     .references(() => songs.id, { onDelete: 'cascade' }),
+  lyricsId: int()
+    .notNull()
+    .references(() => lyrics.id, { onDelete: 'cascade' }),
+  versionIndex: int().notNull(),
   versionName: text(),
   songLink: text({ mode: 'json' }),
-  songInfo: text({ mode: 'json' }),
-  lyrics: text({ mode: 'json' }),
+  credits: text({ mode: 'json' }),
 });
 
 export const songVersionsRelations = relations(songVersions, ({ one }) => ({
@@ -56,7 +61,23 @@ export const songVersionsRelations = relations(songVersions, ({ one }) => ({
     fields: [songVersions.songId],
     references: [songs.id],
   }),
+  lyrics: one(lyrics, {
+    fields: [songVersions.lyricsId],
+    references: [lyrics.id],
+  }),
 }));
 
 export type SongVersion = typeof songVersions.$inferSelect;
 export type NewSongVersion = typeof songVersions.$inferInsert;
+
+export const lyrics = sqliteTable('lyrics', {
+  id: int().primaryKey({ autoIncrement: true }),
+  content: text({ mode: 'json' }),
+});
+
+export const lyricsRelations = relations(lyrics, ({ many }) => ({
+  versions: many(songVersions),
+}));
+
+export type Lyrics = typeof lyrics.$inferSelect;
+export type NewLyrcis = typeof lyrics.$inferInsert;
