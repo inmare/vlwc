@@ -3,7 +3,6 @@ import { appendFile, mkdir } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
-import type { PageData } from './types';
 
 interface Options {
   amount: number | undefined;
@@ -112,7 +111,6 @@ async function main() {
   const songPages =
     links !== undefined ? links : await getSongPageLinks(amount, random);
 
-  const pageDatas: PageData[] = [];
   for (const pagePath of songPages) {
     console.log(`Current page: ${pagePath}`);
     const songPageUrl = new URL(pagePath, WIKI_URL);
@@ -122,12 +120,7 @@ async function main() {
       const pageTitle = parser.page.getPageTitle($);
       const infoTable = parser.page.getInfoTable($);
       const lyricsTable = parser.page.getLyricsTable($);
-      const pageData: PageData = {
-        pageTitle,
-        infoTable,
-        lyricsTable,
-      };
-      pageDatas.push(pageData);
+
       // insertPages(pagePath, pageData);
 
       const originalTitle = parser.infoTable.getOriginalTitle(infoTable);
@@ -164,10 +157,6 @@ async function main() {
 
       console.error(`Error: ${songPageUrl.href}`, error);
     }
-  }
-
-  if (debug) {
-    console.log(pageDatas);
   }
 }
 
