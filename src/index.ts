@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { appendFile, mkdir } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
@@ -9,6 +10,19 @@ interface Options {
   random: boolean | undefined;
   debug: boolean | undefined;
   links: string[] | undefined;
+}
+
+function serializeError(value: unknown): unknown {
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: value.message,
+      stack: value.stack,
+      cause: serializeError(value.cause),
+    };
+  }
+
+  return value;
 }
 
 function parseOptions(): Options {
@@ -102,34 +116,52 @@ async function main() {
   for (const pagePath of songPages) {
     console.log(`Trying to get/parse page ${pagePath}`);
     const songPageUrl = new URL(pagePath, WIKI_URL);
-    const html = await fetcher.fetchHtml(songPageUrl);
-    const $ = cheerio.load(html);
-    const pageTitle = parser.page.getPageTitle($);
-    const infoTable = parser.page.getInfoTable($);
-    const lyricsTable = parser.page.getLyricsTable($);
-    const pageData: PageData = {
-      pageTitle,
-      infoTable,
-      lyricsTable,
-    };
-    pageDatas.push(pageData);
-    // insertPages(pagePath, pageData);
+    try {
+      const html = await fetcher.fetchHtml(songPageUrl);
+      const $ = cheerio.load(html);
+      const pageTitle = parser.page.getPageTitle($);
+      const infoTable = parser.page.getInfoTable($);
+      const lyricsTable = parser.page.getLyricsTable($);
+      const pageData: PageData = {
+        pageTitle,
+        infoTable,
+        lyricsTable,
+      };
+      pageDatas.push(pageData);
+      // insertPages(pagePath, pageData);
 
-    const originalTitle = parser.infoTable.getOriginalTitle(infoTable);
+      const originalTitle = parser.infoTable.getOriginalTitle(infoTable);
 
-    if (debug) {
-      console.log(pageTitle);
-      console.log(originalTitle);
+      if (debug) {
+        console.log(pageTitle);
+        console.log(originalTitle);
+      }
+
+      const versions = parser.page.getVersions(infoTable, lyricsTable);
+      versions.forEach((version, index) => {
+        console.log(`Version: ${version.name}, Index: ${version.index}`);
+        const links = parser.infoTable.getLinks(infoTable, index);
+        const credits = parser.infoTable.getCredits(infoTable, index);
+        console.log(links);
+        console.log(credits);
+      });
+    } catch (error: unknown) {
+      const log = {
+        time: new Date().toISOString(),
+        url: songPageUrl.href,
+        error: serializeError(error),
+      };
+
+      await mkdir('logs', { recursive: true });
+
+      await appendFile(
+        'logs/crawl-errors.jsonl',
+        JSON.stringify(log) + '\n',
+        'utf8',
+      );
+
+      console.error(`Error: ${songPageUrl.href}`, error);
     }
-
-    const versions = parser.page.getVersions(infoTable, lyricsTable);
-    versions.forEach((version, index) => {
-      console.log(`Version: ${version.name}, Index: ${version.index}`);
-      const links = parser.infoTable.getLinks(infoTable, index);
-      const credits = parser.infoTable.getCredits(infoTable, index);
-      console.log(links);
-      console.log(credits);
-    });
   }
 
   if (debug) {

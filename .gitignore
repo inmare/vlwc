@@ -9,6 +9,7 @@ node_modules/
 # log files
 *.log
 *.tsbuildinfo
+logs/
 
 # database files
 *.sqlite
