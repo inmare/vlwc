@@ -3,6 +3,8 @@ import { appendFile, mkdir } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
+import { insertPages } from './db';
+import type { ParsedSongVersion } from './db/schema';
 
 interface Options {
   amount: number | undefined;
@@ -121,8 +123,6 @@ async function main() {
       const infoTable = parser.page.getInfoTable($);
       const lyricsTable = parser.page.getLyricsTable($);
 
-      // insertPages(pagePath, pageData);
-
       const originalTitle = parser.infoTable.getOriginalTitle(infoTable);
       if (debug) {
         console.log(pageTitle);
@@ -130,16 +130,30 @@ async function main() {
       }
 
       const versions = parser.page.getVersions(infoTable, lyricsTable);
-      versions.forEach((version, index) => {
-        if (debug)
-          console.log(`Version: ${version.name}, Index: ${version.index}`);
-        const links = parser.infoTable.getLinks(infoTable, index);
-        const credits = parser.infoTable.getCredits(infoTable, index);
-        if (debug) {
-          console.log(links);
-          console.log(credits);
-        }
-      });
+      const songVersions: ParsedSongVersion[] = versions.map(
+        (version, index): ParsedSongVersion => {
+          if (debug)
+            console.log(`Version: ${version.name}, Index: ${version.index}`);
+          const links = parser.infoTable.getLinks(infoTable, index);
+          const credits = parser.infoTable.getCredits(infoTable, index);
+          if (debug) {
+            console.log(links);
+            console.log(credits);
+          }
+          return {
+            versionIndex: version.index,
+            versionName: version.name,
+            songLink: links,
+            credits,
+          };
+        },
+      );
+
+      insertPages(
+        { url: songPageUrl.href, pageTitle, infoTable, lyricsTable },
+        { title: pageTitle, originalTitle },
+        songVersions,
+      );
     } catch (error: unknown) {
       const log = {
         time: new Date().toISOString(),
