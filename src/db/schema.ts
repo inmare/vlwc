@@ -15,6 +15,7 @@ export const pagesRelations = relations(pages, ({ one }) => ({
 
 export type Page = typeof pages.$inferSelect;
 export type NewPage = typeof pages.$inferInsert;
+export type ParsedPage = NewPage;
 
 // Each page has single song
 export const songs = sqliteTable('songs', {
@@ -37,6 +38,7 @@ export const songsRelations = relations(songs, ({ one, many }) => ({
 
 export type Song = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
+export type ParsedSong = Omit<NewSong, 'pageId'>;
 
 // Each song could have multiple versions
 // Example: https://vocaro.wikidot.com/telecaster-b-boy
@@ -69,6 +71,7 @@ export const songVersionsRelations = relations(songVersions, ({ one }) => ({
 
 export type SongVersion = typeof songVersions.$inferSelect;
 export type NewSongVersion = typeof songVersions.$inferInsert;
+export type ParsedSongVersion = Omit<NewSongVersion, 'songId' | 'lyricsId'>;
 
 export const lyrics = sqliteTable('lyrics', {
   id: int().primaryKey({ autoIncrement: true }),
@@ -81,3 +84,4 @@ export const lyricsRelations = relations(lyrics, ({ many }) => ({
 
 export type Lyrics = typeof lyrics.$inferSelect;
 export type NewLyrcis = typeof lyrics.$inferInsert;
+export type ParsedLyrics = NewLyrcis;
