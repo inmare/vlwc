@@ -2,7 +2,6 @@ import * as cheerio from 'cheerio';
 import { parseArgs } from 'node:util';
 import { ALLSONGS_PATH, WIKI_URL } from './constants';
 import { fetcher, parser } from './crawler';
-import { insertPages } from './db';
 import type { PageData } from './types';
 
 interface Options {
@@ -62,7 +61,7 @@ async function getSongPageLinks(
 ): Promise<string[]> {
   const allsongsUrl = new URL(ALLSONGS_PATH, WIKI_URL);
   const allsongsHtml = await fetcher.fetchHtml(allsongsUrl);
-  const paths = parser.getSongListPaths(allsongsHtml);
+  const paths = parser.page.getSongListPaths(allsongsHtml);
   console.log(`Get ${paths.length} of sub pages in /allsongs`);
 
   const pages: string[] = [];
@@ -70,7 +69,7 @@ async function getSongPageLinks(
     const subPageUrl = new URL(path, WIKI_URL);
 
     const html = await fetcher.fetchHtml(subPageUrl);
-    pages.push(...parser.getSongLinks(html));
+    pages.push(...parser.page.getSongLinks(html));
   }
 
   console.log(`Get ${pages.length} of songs from sub pages`);
@@ -114,7 +113,23 @@ async function main() {
       lyricsTable,
     };
     pageDatas.push(pageData);
-    insertPages(pagePath, pageData);
+    // insertPages(pagePath, pageData);
+
+    const originalTitle = parser.infoTable.getOriginalTitle(infoTable);
+
+    if (debug) {
+      console.log(pageTitle);
+      console.log(originalTitle);
+    }
+
+    const versions = parser.page.getVersions(infoTable, lyricsTable);
+    versions.forEach((version, index) => {
+      console.log(`Version: ${version.name}, Index: ${version.index}`);
+      const links = parser.infoTable.getLinks(infoTable, index);
+      const credits = parser.infoTable.getCredits(infoTable, index);
+      console.log(links);
+      console.log(credits);
+    });
   }
 
   if (debug) {
