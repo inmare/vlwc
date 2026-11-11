@@ -32,7 +32,7 @@ export const songsRelations = relations(songs, ({ one, many }) => ({
     fields: [songs.pageId],
     references: [pages.id],
   }),
-  versions: many(songVersions),
+  songVersions: many(songVersions),
 }));
 
 export type Song = typeof songs.$inferSelect;
