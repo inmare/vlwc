@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import type { Credit } from '../../types';
 
 /**
  * Get the original title from a song page's info table.
@@ -37,11 +38,6 @@ export function getLinks(html: string, versionIndex: number): string[] {
     );
 
   return links;
-}
-
-interface Credit {
-  job: string;
-  person: string[];
 }
 
 /**
