@@ -26,16 +26,14 @@ export function getLinks(html: string, versionIndex: number): string[] {
   const $ = cheerio.load(html);
 
   const targetTd = $('tr').eq(2).find('td').eq(versionIndex);
+  if (targetTd.length === 0)
+    throw new Error(`Can't find source cell for version ${versionIndex + 1}.`);
+
   const links = targetTd
     .find('a')
     .map((_, element) => $(element).attr('href'))
     .get()
-    .filter((href) => href !== undefined);
-
-  if (links.length === 0)
-    throw new Error(
-      `Can't find link from cell ${versionIndex + 1} from third row.`,
-    );
+    .filter((href) => href !== undefined && href.trim() !== '');
 
   return links;
 }
