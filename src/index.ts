@@ -105,10 +105,13 @@ async function main() {
     const songPageUrl = new URL(pagePath, WIKI_URL);
     const html = await fetcher.fetchHtml(songPageUrl);
     const $ = cheerio.load(html);
+    const pageTitle = parser.getPageTitle($);
+    const infoTable = parser.getInfoTable($);
+    const lyricsTable = parser.getLyricsTable($);
     const pageData: PageData = {
-      pageTitle: parser.getPageTitle($),
-      infoTable: parser.getInfoTable($),
-      lyricsTable: parser.getLyricsTable($),
+      pageTitle,
+      infoTable,
+      lyricsTable,
     };
     pageDatas.push(pageData);
     insertPages(pagePath, pageData);
