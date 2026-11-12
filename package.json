@@ -33,6 +33,7 @@
     "typescript-eslint": "^8.72.1"
   },
   "dependencies": {
+    "@fastify/rate-limit": "^11.2.2",
     "@fastify/static": "^10.1.10",
     "better-sqlite3": "^13.0.3",
     "cheerio": "^1.2.0",
