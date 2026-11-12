@@ -80,26 +80,26 @@ app.get<{ Querystring: SearchQuery }>(
   },
 );
 
-// Get songs from id
-app.get<{
-  Querystring: {
-    id: number;
-  };
-}>(
-  '/api/song',
-  {
-    schema: {
-      querystring: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'number',
-            minimum: 0,
-          },
-        },
+type SongQuery = {
+  id: number;
+};
+
+const songSchema = {
+  querystring: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'integer',
+        minimum: 0,
       },
     },
   },
+};
+
+// Get songs from id
+app.get<{ Querystring: SongQuery }>(
+  '/api/song',
+  { schema: songSchema },
   async (request) => {
     const { id } = request.query;
     const song = getSongFromId(id);
