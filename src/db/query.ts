@@ -1,6 +1,6 @@
 import { and, asc, eq, gt, like, or } from 'drizzle-orm';
 import { db } from './client';
-import { songs } from './schema';
+import { songs, songVersions } from './schema';
 
 export function listSongs(afterId: number, limit: number) {
   return db
@@ -16,7 +16,12 @@ export function listSongs(afterId: number, limit: number) {
     .all();
 }
 
-export function searchSongs(query: string, afterId: number, limit: number) {
+export function searchSongs(
+  query: string,
+  afterId: number,
+  limit: number,
+  linkId?: string,
+) {
   return db
     .select({
       id: songs.id,
@@ -24,12 +29,14 @@ export function searchSongs(query: string, afterId: number, limit: number) {
       originalTitle: songs.originalTitle,
     })
     .from(songs)
+    .innerJoin(songVersions, eq(songVersions.songId, songs.id))
     .where(
       and(
         gt(songs.id, afterId),
         or(
           like(songs.title, `%${query}%`),
           like(songs.originalTitle, `%${query}%`),
+          like(songVersions.songLink, `%${linkId}%`),
         ),
       ),
     )

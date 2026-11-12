@@ -42,6 +42,7 @@ type SearchQuery = {
   afterId?: number;
   limit?: number;
   q?: string;
+  linkId?: string;
 };
 
 const serachSchema = {
@@ -60,6 +61,11 @@ const serachSchema = {
         maximum: 100,
         default: 10,
       },
+      linkId: {
+        type: 'string',
+        maxLength: '20',
+        default: '',
+      },
     },
   },
 };
@@ -77,8 +83,8 @@ app.get<{ Querystring: SearchQuery }>(
     },
   },
   async (request) => {
-    const { afterId = 0, limit = 10, q = '' } = request.query;
-    const rows = searchSongs(q, afterId, limit + 1);
+    const { afterId = 0, limit = 10, q = '', linkId = '' } = request.query;
+    const rows = searchSongs(q, afterId, limit + 1, linkId);
     const items = rows.slice(0, limit);
 
     return {
