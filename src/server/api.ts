@@ -67,7 +67,15 @@ const serachSchema = {
 // Search songs from query
 app.get<{ Querystring: SearchQuery }>(
   '/api/search',
-  { schema: serachSchema },
+  {
+    schema: serachSchema,
+    config: {
+      rateLimit: {
+        max: 30,
+        timeWindow: '1 minute',
+      },
+    },
+  },
   async (request) => {
     const { afterId = 0, limit = 10, q = '' } = request.query;
     const rows = searchSongs(q, afterId, limit + 1);
